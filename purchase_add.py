@@ -3,6 +3,8 @@ import sys
 import justpy as jp
 from cosmetic_classes import *
 import time
+import base64
+import os
 from main_reim_pur import *
 
 
@@ -51,6 +53,11 @@ def add_purchase_main():
     contents_label = jp.Label(a=input_div, text='Contents', classes=label_classes)
     contents_in = jp.Textarea(a=input_div, placeholder='Contents', classes='form-input', type='text')
     contents_label.for_component = contents_in
+
+    # receipt image upload
+    receipt_img = jp.Label(a=input_div, text='Receipt', classes=label_classes)
+    receipt_img_in = jp.Input(a=input_div, classes=input_classes, type='file', multiple=False, accept='image/*')
+    receipt_img_in.for_component = receipt_img_in
 
     # button that calls submit_form when pressed
     save_button = jp.Input(value='Save', type='submit', a=button_div2, classes=button_classes,
@@ -103,6 +110,19 @@ def submit_form(self, msg):
                 f'WHERE ReimID = {reim_val}')
     conn.commit()
     conn.close()
+
+    # saves image
+    if not os.path.isdir(msg.session_id):
+        os.mkdir(msg.session_id)
+
+    for data in msg.form_data:
+        if data.type == 'file':
+            break
+
+    for index, value in enumerate(data.files):
+        with open(f'{msg.session_id}/{value.name}', 'wb') as file:
+            file.write(base64.b64decode(value.file_content))
+    file_list = os.listdir(msg.session_id)
 
 
 # redirects to main page
