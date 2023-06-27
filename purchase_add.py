@@ -99,30 +99,37 @@ def submit_form(self, msg):
         if output['placeholder'] == 'Contents':
             contents = output.value
 
+    # saves image
+    # if not in directory named after session id,
+    # make one
+    if not os.path.isdir(msg.session_id):
+        os.mkdir(msg.session_id)
+
+    # set data to submitted file
+    for data in msg.form_data:
+        if data.type == 'file':
+            break
+
+    # open directory and write file to it
+    file_name = ''
+    for index, value in enumerate(data.files):
+        with open(f'{msg.session_id}/{value.name}', 'wb') as file:
+            file_name = value.name
+            file.write(base64.b64decode(value.file_content))
+    file_list = os.listdir(msg.session_id)
+    
+    # database interaction
     conn = sqlite3.connect('db_reimbursements.db')
     cur = conn.cursor()
     reim_val = reim_ret()
     # inserts values into Purchase table
-    cur.execute('INSERT INTO Purchase(PurchaseDate, Amount, Content, PurchaseType, ReimID) '
-                'VALUES (?, ?, ?, ?, ?)', (date, total_cost, contents, p_type, reim_val))
+    cur.execute('INSERT INTO Purchase(PurchaseDate, Amount, Content, PurchaseType, ReimID, RecImg) '
+                'VALUES (?, ?, ?, ?, ?, ?)', (date, total_cost, contents, p_type, reim_val, file_name))
     # updates total in corresponding reimbursement
     cur.execute(f'UPDATE Reimbursements SET Total = (SELECT SUM(Amount) FROM Purchase WHERE ReimID = {reim_val}) '
                 f'WHERE ReimID = {reim_val}')
     conn.commit()
     conn.close()
-
-    # saves image
-    if not os.path.isdir(msg.session_id):
-        os.mkdir(msg.session_id)
-
-    for data in msg.form_data:
-        if data.type == 'file':
-            break
-
-    for index, value in enumerate(data.files):
-        with open(f'{msg.session_id}/{value.name}', 'wb') as file:
-            file.write(base64.b64decode(value.file_content))
-    file_list = os.listdir(msg.session_id)
 
 
 # redirects to main page
