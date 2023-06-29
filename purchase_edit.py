@@ -70,7 +70,8 @@ def edit_purchase_main():
 
     # receipt image upload
     receipt_img = jp.Label(a=input_div, text='Receipt', classes=label_classes)
-    receipt_img_in = jp.Input(a=input_div, classes=input_classes, type='file',
+    receipt_img_in = jp.Input(a=input_div,
+                              classes=input_classes, type='file',
                               multiple=False, accept='image/*')
     receipt_img_in.for_component = receipt_img_in
 
@@ -126,8 +127,10 @@ def submit_form(self, msg):
 
     # open directory and write file to it
     rec_file_update = ''
+    input_check = ''
     for index, value in enumerate(data.files):
         # html to insert for receipt link
+        input_check = f'{msg.session_id}{value.name}'
         rec_file_update = f'<a id="1" download="{value.name}" ' \
                    f'href="static/{msg.session_id}/{value.name}"' \
                    f' rel="noopener noreferrer" target="_self" title="" ' \
@@ -141,10 +144,17 @@ def submit_form(self, msg):
     reim_val = reim_ret()
     pur_val = pur_ret()
     # update selected purchase values
-    cur.execute('UPDATE Purchase SET PurchaseDate = ?, Amount = ?, Content = ?, PurchaseType = ?, '
-                'ReimID = ?, RecImg = ? '
-                'WHERE PurchaseID = ?'
-                , (date, total_cost, contents, p_type, reim_val, rec_file_update, pur_val))
+    if input_check != '':
+        cur.execute('UPDATE Purchase SET PurchaseDate = ?, Amount = ?, Content = ?, PurchaseType = ?, '
+                    'ReimID = ?, RecImg = ? '
+                    'WHERE PurchaseID = ?'
+                    , (date, total_cost, contents, p_type, reim_val, rec_file_update, pur_val))
+    else:
+        cur.execute('UPDATE Purchase SET PurchaseDate = ?, Amount = ?, Content = ?, PurchaseType = ?, '
+                    'ReimID = ? '
+                    'WHERE PurchaseID = ?'
+                    , (date, total_cost, contents, p_type, reim_val, pur_val))
+
     # update corresponding reimbursement total
     cur.execute(f'UPDATE Reimbursements SET Total = (SELECT SUM(Amount) FROM Purchase WHERE ReimID = {reim_val}) '
                 f'WHERE ReimID = {reim_val}')
