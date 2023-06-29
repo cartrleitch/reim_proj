@@ -111,20 +111,24 @@ def submit_form(self, msg):
             break
 
     # open directory and write file to it
-    file_name = ''
+    rec_file = ''
     for index, value in enumerate(data.files):
+        # html to insert for receipt link
+        rec_file = f'<a id="1" download="{value.name}" ' \
+                   f'href="static/{msg.session_id}/{value.name}"' \
+                   f' rel="noopener noreferrer" target="_self" title="" ' \
+                   f'style="color: #069; text-decoration: underline; cursor: pointer;">Download</a>'
         with open(f'{msg.session_id}/{value.name}', 'wb') as file:
-            file_name = value.name
             file.write(base64.b64decode(value.file_content))
     file_list = os.listdir(msg.session_id)
-    
+
     # database interaction
     conn = sqlite3.connect('db_reimbursements.db')
     cur = conn.cursor()
     reim_val = reim_ret()
     # inserts values into Purchase table
     cur.execute('INSERT INTO Purchase(PurchaseDate, Amount, Content, PurchaseType, ReimID, RecImg) '
-                'VALUES (?, ?, ?, ?, ?, ?)', (date, total_cost, contents, p_type, reim_val, file_name))
+                'VALUES (?, ?, ?, ?, ?, ?)', (date, total_cost, contents, p_type, reim_val, rec_file))
     # updates total in corresponding reimbursement
     cur.execute(f'UPDATE Reimbursements SET Total = (SELECT SUM(Amount) FROM Purchase WHERE ReimID = {reim_val}) '
                 f'WHERE ReimID = {reim_val}')

@@ -105,6 +105,8 @@ def reim_table():
     grid_pur.on('rowSelected', reim_selected_row)
     grid_pur.options.columnDefs[0].hide = True
     grid_pur.options.columnDefs[1].checkboxSelection = True
+    grid_pur.html_columns = [5]
+
 
     # refreshes data for reimbursement
     # and purchases table
