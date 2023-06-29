@@ -20,9 +20,9 @@ def edit_purchase_main():
                         click=banner_click)
     banner_sub = jp.Div(text='Reimbursement Manager', a=banner_div, classes=banner_sub_classes,
                         style='font-size:15px; padding-top: 10px;')
-    title_div = jp.Div(text='Purchase Add', a=wp,
+    title_div = jp.Div(text='Purchase Edit', a=wp,
                        classes=title_classes)
-    description_div = jp.Div(text='Create Purchase', a=title_div,
+    description_div = jp.Div(text='Edit Purchase', a=title_div,
                              classes=desc_classes)
 
     # page divs
@@ -52,7 +52,7 @@ def edit_purchase_main():
 
     # total cost entry
     cost_label = jp.Label(a=input_div, text='Total Cost', classes=label_classes)
-    cost_in = jp.Input(a=input_div, placeholder='Total Cost',value=amount_val,  classes=input_classes, type='text')
+    cost_in = jp.Input(a=input_div, placeholder='Total Cost', value=amount_val,  classes=input_classes, type='text')
     cost_label.for_component = cost_in
 
     # purchase type dropdown menu input
@@ -64,12 +64,14 @@ def edit_purchase_main():
 
     # contents entry
     contents_label = jp.Label(a=input_div, text='Contents', classes=label_classes)
-    contents_in = jp.Textarea(a=input_div, placeholder='Contents', value=contents_val, classes='form-input', type='text')
+    contents_in = jp.Textarea(a=input_div, placeholder='Contents', value=contents_val,
+                              classes='form-input', type='text')
     contents_label.for_component = contents_in
 
     # receipt image upload
     receipt_img = jp.Label(a=input_div, text='Receipt', classes=label_classes)
-    receipt_img_in = jp.Input(a=input_div, classes=input_classes, type='file', multiple=False, accept='image/*')
+    receipt_img_in = jp.Input(a=input_div, classes=input_classes, type='file',
+                              multiple=False, accept='image/*')
     receipt_img_in.for_component = receipt_img_in
 
     # button that calls submit_form when pressed
